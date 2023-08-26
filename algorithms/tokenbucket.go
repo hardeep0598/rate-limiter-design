@@ -1,52 +1,34 @@
 package algorithms
 
 import (
-	"fmt"
+	"algorithms/utils"
 	"math"
-	"time"
 )
 
 const (
-	MAX_BUCKET_SIZE float64 = 3
-	REFILL_RATE     int     = 1
+	TOKEN_MAX_BUCKET_SIZE int = 3
+	REFILL_RATE           int = 1
 )
 
 type TokenBucket struct {
-	currentBucketSize   float64
-	lastRefillTimestamp int
+	TokenCurrentBucketSize int
+	LastRefillTimestamp    int
 }
 
-func (tb *TokenBucket) allowRequest(tokens float64) bool {
+func (tb *TokenBucket) AllowRequest(tokens int) bool {
 	// refill is called to ensure token bucket is up-to-date
 	tb.refill()
-	if tb.currentBucketSize >= tokens {
-		tb.currentBucketSize -= tokens
+	if tb.TokenCurrentBucketSize >= tokens {
+		tb.TokenCurrentBucketSize -= tokens
 		return true
 	}
 	return false
 }
 
-func getCurrentTimeInNanoSeconds() int {
-	return int(time.Now().UnixNano())
-}
-
 // Calculates how many tokens can be added since the last refill
 func (tb *TokenBucket) refill() {
-	nowTime := getCurrentTimeInNanoSeconds()
-	tokensToAdd := (nowTime - tb.lastRefillTimestamp) * REFILL_RATE / 1e9
-	tb.currentBucketSize = math.Min(tb.currentBucketSize+float64(tokensToAdd), MAX_BUCKET_SIZE)
-	tb.lastRefillTimestamp = nowTime
-}
-
-func main() {
-	tokenBucketObject := TokenBucket{
-		currentBucketSize:   3,
-		lastRefillTimestamp: getCurrentTimeInNanoSeconds(),
-	}
-
-	for i := 0; i < 10; i++ {
-		fmt.Printf("Request %d: Allowed - %t\n", i+1, tokenBucketObject.allowRequest(1))
-		// 500 ms delay
-		time.Sleep(500 * time.Millisecond)
-	}
+	nowTime := utils.GetCurrentTimeInNanoSeconds()
+	tokensToAdd := float64((nowTime-tb.LastRefillTimestamp)*REFILL_RATE) / 1e9
+	tb.TokenCurrentBucketSize = int(math.Min(float64(tb.TokenCurrentBucketSize)+tokensToAdd, float64(TOKEN_MAX_BUCKET_SIZE)))
+	tb.LastRefillTimestamp = nowTime
 }
