@@ -9,6 +9,8 @@ import (
 
 func main() {
 
+	// ------------------------------------------------------------------------------------------ //
+
 	// token bucket algorithm
 	tokenBucketObject := algorithms.TokenBucket{
 		TokenCurrentBucketSize: 3,
@@ -21,6 +23,8 @@ func main() {
 		time.Sleep(500 * time.Millisecond)
 	}
 
+	// ------------------------------------------------------------------------------------------ //
+
 	// Leaky bucket algorithm
 	leakyBucketObject := algorithms.LeakyBucket{
 		LeakyCurrentBucketSize: 10,
@@ -31,4 +35,17 @@ func main() {
 		fmt.Printf("Request %d: Allowed - %t\n", i+1, leakyBucketObject.AllowRequest(1))
 		time.Sleep(1 * time.Second)
 	}
+
+	// ------------------------------------------------------------------------------------------ //
+
+	// sliding window algorithm
+	slidingWindowRateLimiter := algorithms.NewSlidingWindow(10, 5)
+
+	for i := 1; i <= 8; i++ {
+		allowed := slidingWindowRateLimiter.AllowRequest()
+		fmt.Printf("Request %d: Allowed - %t\n", i, allowed)
+		time.Sleep(500 * time.Millisecond)
+	}
+
+	// ------------------------------------------------------------------------------------------ //
 }
